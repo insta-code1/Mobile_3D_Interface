@@ -1,0 +1,14 @@
+body {
+	background-color: #ffffff;
+	margin: 0;
+	cursor: move;
+	overflow: hidden;
+	font-family: helvetica, arial, sans-serif;
+}
+.menu {
+    cursor: pointer;
+}
+.pic{
+    width: 180px;
+    height: 240px;
+}

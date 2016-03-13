@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+        <title>css3d - device orientation - augmented interface</title>
+        <link rel="stylesheet" href="css/project.css" />
+    </head>
+    <body>
+
+        <script src="js/three.min.js"></script>
+        <script src="js/DeviceOrientationControls.js"></script>
+        <script src="js/CSS3DRenderer.js"></script>
+        <script>
+            var camera, scene, renderer;
+            var circle1, circle2;
+
+            function init() {
+                camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 1000 );
+                controls = new THREE.DeviceOrientationControls( camera );
+                scene = new THREE.Scene();
+                var sides = [{
+                        url: 'img/scene-right.jpg',
+                        position: [ -512, 0, 0 ],
+                        rotation: [ 0, Math.PI / 2, 0 ]
+                    },{
+                        url: 'img/scene-left.jpg',
+                        position: [ 512, 0, 0 ],
+                        rotation: [ 0, -Math.PI / 2, 0 ]
+                    },{
+                        url: 'img/scene-top.jpg',
+                        position: [ 0,  512, 0 ],
+                        rotation: [ Math.PI / 2, 0, Math.PI ]
+                    },{
+                        url: 'img/scene-base.jpg',
+                        position: [ 0, -512, 0 ],
+                        rotation: [ - Math.PI / 2, 0, Math.PI ]
+                    },{
+                        url: 'img/scene-front.jpg',
+                        position: [ 0, 0,  512 ],
+                        rotation: [ 0, Math.PI, 0 ]
+                    },{
+                        url: 'img/scene-back.jpg',
+                        position: [ 0, 0, -512 ],
+                        rotation: [ 0, 0, 0 ]
+                    }];
+
+                var cube = new THREE.Object3D();
+                scene.add( cube );
+                for ( var i = 0; i < sides.length; i ++ ) {
+
+                    var side = sides[ i ];
+                    var element = document.createElement( 'img' );
+                    element.width = 1026;
+                    element.src = side.url;
+                    var object = new THREE.CSS3DObject( element );
+                    object.position.fromArray( side.position );
+                    object.rotation.fromArray( side.rotation );
+                    cube.add( object );
+
+                }
+                ///////Set links
+                var menu = [
+                    { img: 'img/0.png' },
+                    { img: 'img/1.png' },
+                    { img: 'img/2.png' },
+                    { img: 'img/3.png' },
+                    { img: 'img/4.png' }
+                ];
+
+                var vector = new THREE.Vector3();
+                for ( var i = 0; i < menu.length; i ++ ) {
+                    var myMenu = menu[ i ];
+                    var pic = document.createElement( 'div' );
+                    console.log(myMenu.img);
+                    pic.innerHTML = '<img id="' + i + '" class="pic" src=' + myMenu.img + ' >';
+
+                    pic.addEventListener( 'click', function ( event ) {
+                        console.log(event.target.id);
+                    }, false );
+
+                    var object = new THREE.CSS3DObject( pic );
+                    var phi = (Math.PI*2) / menu.length;
+                    phi = phi * i;
+
+                    object.position.x = 350 * Math.sin( phi );
+                    object.position.y = 40;
+                    object.position.z = 350 * Math.cos( phi );
+
+                    vector.x = object.position.x / 2;
+                    vector.y = object.position.y;
+                    vector.z = object.position.z / 2;
+
+                    object.lookAt( vector );
+                    scene.add( object );
+                }
+
+                ///interactive map
+                element = document.createElement( 'div' );
+                element.className = 'mapped';
+                element.innerHTML = '<iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2381.695601475995!2d-6.261846984161467!3d53.34870497997962!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x48670e845bed6611%3A0x45a89779ecec50aa!2sO&#39;Connell+Street+Lower%2C+Dublin!5e0!3m2!1sen!2sie!4v1457880898818" width="600" height="600" frameborder="0" style="border:0" allowfullscreen></iframe>'
+                var elementWidth = 600;
+                var elementHeight = 600;
+                element.style.width  = elementWidth + "px";
+                element.style.height = elementHeight + "px";
+                var cssObject = new THREE.CSS3DObject( element );
+                cssObject.position.y = -400;
+                cssObject.rotation.x = -Math.PI/2;
+
+                scene.add(cssObject);
+
+                //rotating circles
+                element = document.createElement( 'div' );
+                element.innerHTML = '<img src="img/circle1.png">';
+                element.style.width  = "700px";
+                element.style.height = "700px";
+
+                circle1 = new THREE.CSS3DObject( element );
+                circle1.position.y = 240;
+                circle1.rotation.x = -Math.PI/2;
+                scene.add(circle1);
+
+                element = document.createElement( 'div' );
+                element.innerHTML = '<img src="img/circle2.png">';
+                element.style.width  = "700px";
+                element.style.height = "700px";
+
+                circle2 = new THREE.CSS3DObject( element );
+                circle2.position.y = 260;
+                circle2.rotation.x = -Math.PI/2;
+                scene.add(circle2);
+
+                renderer = new THREE.CSS3DRenderer();
+                renderer.setSize( window.innerWidth, window.innerHeight );
+                document.body.appendChild( renderer.domElement );
+
+                window.addEventListener( 'resize', onWindowResize, false );
+                animate();
+            }
+
+            function onWindowResize() {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize( window.innerWidth, window.innerHeight );
+            }
+
+            function animate() {
+                requestAnimationFrame( animate );
+                circle1.rotation.z += 0.001;
+                circle2.rotation.z -= 0.002;
+                controls.update();
+                renderer.render( scene, camera );
+            }
+
+            init();
+
+        </script>
+    </body>
+</html>
